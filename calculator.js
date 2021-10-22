@@ -23,25 +23,27 @@ const calc = {
       calc.waitingForSecondValue = false;
       return
     }
-  
+
     if (!calc.displayValue.includes(dot)) {
       calc.displayValue += dot;
     }
   }
 
   function addOperator(nextOperator) {
-    const { firstValue, displayValue, operator} = calc
+    const { firstValue, displayValue, operator} = calc;
     const inputValue = parseFloat(displayValue);
     
-    if (firstValue === null && !isNaN(inputValue)) {     
+    if (firstValue === null && !isNaN(inputValue)) {    
       calc.firstValue = inputValue;
     } else if (operator) {   
-      const result = calculate(firstValue, inputValue, operator); 
-        calc.displayValue = `${parseFloat(result.toFixed(8))}`;
-        calc.firstValue = result;
-
+      const result = calculate(firstValue, inputValue, operator);       
+        if (isNaN(result)) {    
+          calc.displayValue = 'Error'
+        } else {
+          calc.displayValue = `${parseFloat(result.toFixed(8))}`;
+          calc.firstValue = result;
+        }      
     }
-  
     calc.waitingForSecondValue = true;
     calc.operator = nextOperator;  
   }
@@ -70,20 +72,31 @@ const calc = {
     const inputValue = parseFloat(calc.displayValue);
 
     if (calc.waitingForSecondValue === true) {
-      calc.displayValue = '-';
-      calc.waitingForSecondValue = false;
+        if (calc.operator !== '=') {
+          calc.displayValue = '-';
+        } else if (calc.operator === '=' && !calc.displayValue.includes('-')){
+          calc.displayValue = '-' + calc.displayValue
+        } else {
+          calc.displayValue = calc.displayValue.slice(1);
+        }
+        calc.waitingForSecondValue = false;
       return;
     }
 
     if (calc.displayValue !== '0') {
         if (!calc.displayValue.includes('-')) {
-          calc.displayValue = '-' + calc.displayValue
+          calc.displayValue = '-' + calc.displayValue;
           calc.firstValue = inputValue;
         } else {
           calc.displayValue = calc.displayValue.slice(1)
         }
     } else {
-        calc.displayValue = '-'
+      if (calc.displayValue.length > 1) {
+        calc.displayValue = '-' + calc.displayValue;
+      } else {
+        calc.displayValue = '-';
+      }
+        
     }
   }
 
